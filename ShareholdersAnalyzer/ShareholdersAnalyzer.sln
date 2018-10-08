@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareholdersAnalyzer", "ShareholdersAnalyzer\ShareholdersAnalyzer.csproj", "{B30FDD16-3AFF-4029-A47A-41F571CE6E0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareholdersAnalyzerGUI", "ShareholdersAnalyzerGUI\ShareholdersAnalyzerGUI.csproj", "{CF906C57-0FF6-4D17-A3A4-1374C2748711}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B30FDD16-3AFF-4029-A47A-41F571CE6E0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B30FDD16-3AFF-4029-A47A-41F571CE6E0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B30FDD16-3AFF-4029-A47A-41F571CE6E0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B30FDD16-3AFF-4029-A47A-41F571CE6E0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF906C57-0FF6-4D17-A3A4-1374C2748711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF906C57-0FF6-4D17-A3A4-1374C2748711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF906C57-0FF6-4D17-A3A4-1374C2748711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF906C57-0FF6-4D17-A3A4-1374C2748711}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E5326052-04FE-4437-940D-AE2AB285D358}
+	EndGlobalSection
+EndGlobal
