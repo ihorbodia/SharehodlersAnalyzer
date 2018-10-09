@@ -13,10 +13,13 @@ namespace ShareholdersAnalyzerGUI
 		{
 			InitializeComponent();
 			StatusLabelText.Text = "Choose file";
-			Text = "Shareholder Analyzer v1";
 			FormBorderStyle = FormBorderStyle.FixedSingle;
 			ChoosenPathLabel.AutoEllipsis = true;
-		}
+
+            Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            string displayableVersion = $"Shareholder analyzer {version.Major}.{version.Minor}.{version.Revision}";
+            Text = displayableVersion;
+        }
 
 		private void ChooseFirstFolderButton_Click(object sender, EventArgs e)
 		{
