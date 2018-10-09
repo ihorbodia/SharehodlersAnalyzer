@@ -24,5 +24,26 @@ namespace ShareholdersAnalyzer
 			}
 			return selectedFileName;
 		}
+
+        public static string CleanCompanyName(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+            {
+                return string.Empty;
+            }
+            string result = string.Empty;
+            string newChar = string.Empty;
+            data =
+                data.Replace("Inc.", newChar)
+                    .Replace("Ltd.", newChar)
+                    .Replace("Рoldings", newChar)
+                    .Replace("Рolding", newChar)
+                    .Replace("Пroup", newChar)
+                    .Replace(",", newChar)
+                    .Replace(".", newChar);
+            var res = data.Trim().Split(' ').ToList().Where(x => x.Length > 2);
+            var resData = string.Join(" ", res);
+            return resData;
+        }
 	}
 }
