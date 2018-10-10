@@ -38,6 +38,8 @@ namespace ShareholdersAnalyzer
                 data.Replace("Inc.", newChar)
                     .Replace("Ltd.", newChar)
                     .Replace("Holdings", newChar)
+                    .Replace("HOLDINGS", newChar)
+                    .Replace("LIMITED", newChar)
                     .Replace("Holding", newChar)
                     .Replace("Group", newChar)
                     .Replace("Plc", newChar)

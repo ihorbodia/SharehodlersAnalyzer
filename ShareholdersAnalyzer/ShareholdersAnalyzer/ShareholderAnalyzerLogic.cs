@@ -57,7 +57,7 @@ namespace ShareholdersAnalyzer
 #if DEBUG
                     int rowNum = Convert.ToInt32(row);
                     var htmlDocument = WebHelper.GetPageData(name, URL);
-                    bool? result = IsFF(htmlDocument, name, companyName);
+                    bool? result = IsFF(htmlDocument, name.ToUpper(), companyName.ToUpper());
                     if (result == true)
                     {
                         workSheet.Cells[rowNum, 6].Value = "FF";
@@ -127,7 +127,7 @@ namespace ShareholdersAnalyzer
                 .Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
                 .Where(x => x.FirstChild.Attributes["class"].Value == "nfvtL")
                 .Where(x => x.FirstChild.FirstChild.Name == "a")
-                .Where(x => x.InnerText.Trim().Contains(name))
+                .Where(x => x.InnerText.Trim().ToUpper().Contains(name))
                 .Select(n => n.FirstChild.FirstChild.Attributes["href"].Value).FirstOrDefault();
             if (linkToSummary == null)
             {
@@ -138,11 +138,11 @@ namespace ShareholdersAnalyzer
 
             var htmlPositionsTable = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Current positions"));
 
-            if (htmlPositionsTable == null)
+            IEnumerable<IList<HtmlNode>> currentPositionCompanies = null;
+            string jobTitle = string.Empty;
+            if (htmlPositionsTable != null)
             {
-                return false;
-            }
-            var currentPositionCompanies = htmlPositionsTable
+                currentPositionCompanies = htmlPositionsTable
                 .ChildNodes
                 .FirstOrDefault(x => x.Name == "tr" && x.LastChild.Name == "td")
                 .FirstChild
@@ -151,11 +151,11 @@ namespace ShareholdersAnalyzer
                 .ChildNodes
                 .Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
                 .Select(x => x.ChildNodes.Where(y => y.Name == "td").ToList());
-
-            string jobTitle = string.Empty;
+            }
+            
             if (currentPositionCompanies == null)
             {
-                var summaryText = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Summary")).InnerText;
+                var summaryText = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Summary")).InnerText.ToUpper();
                 if (summaryText.IndexOf(companyName) != summaryText.LastIndexOf(companyName) && summaryText.IndexOf(companyName) != -1)
                 {
                     return null;
@@ -170,6 +170,10 @@ namespace ShareholdersAnalyzer
                     {
                         jobTitle = FoundJobTitle(summaryText, companyName);
                     }
+                }
+                else
+                {
+                    return true;
                 }
             }
             else
@@ -200,7 +204,7 @@ namespace ShareholdersAnalyzer
         
         private string FoundJobTitle(string summaryText, string companyName)
         {
-            Regex regex = new Regex("is(.*)at " + companyName);
+            Regex regex = new Regex("IS (.*) AT " + companyName);
             var v = regex.Match(summaryText);
             return v.Groups[1].ToString();
         }
