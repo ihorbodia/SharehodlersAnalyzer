@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ShareholdersAnalyzer
@@ -133,8 +134,9 @@ namespace ShareholdersAnalyzer
                 return true;
             }
             var doc = WebHelper.GetPageSummaryData(name, linkToSummary).GetAwaiter().GetResult().DocumentNode;
-            var htmlPositionsTable = doc.SelectNodes("//table[@class='tabElemNoBor overfH']")
-                .FirstOrDefault(x => x.InnerText.Contains("Current positions"));
+            var personPageTables = doc.SelectNodes("//table[@class='tabElemNoBor overfH']");
+
+            var htmlPositionsTable = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Current positions"));
 
             if (htmlPositionsTable == null)
             {
@@ -151,12 +153,39 @@ namespace ShareholdersAnalyzer
                 .Select(x => x.ChildNodes.Where(y => y.Name == "td").ToList());
 
             string jobTitle = string.Empty;
-            foreach (var positionRow in currentPositionCompanies)
+            if (currentPositionCompanies == null)
             {
-                if (FilesHelper.CleanCompanyName(positionRow[0].InnerText.Trim()).Equals(companyName))
+                var summaryText = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Summary")).InnerText;
+                if (summaryText.IndexOf(companyName) != summaryText.LastIndexOf(companyName) && summaryText.IndexOf(companyName) != -1)
                 {
-                    jobTitle = positionRow[1].InnerText.Trim();
+                    return null;
                 }
+                else if (summaryText.Contains(companyName))
+                {
+                    if (isPresentedInSummary(summaryText, companyName))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        jobTitle = FoundJobTitle(summaryText, companyName);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var positionRow in currentPositionCompanies)
+                {
+                    if (FilesHelper.CleanCompanyName(positionRow[0].InnerText.Trim()).Equals(companyName))
+                    {
+                        jobTitle = positionRow[1].InnerText.Trim();
+                        break;
+                    }
+                }
+            }
+            if (string.IsNullOrEmpty(jobTitle))
+            {
+                return true;
             }
 
             if (managersTable.Any(x => x.InnerText.Equals(jobTitle)))
@@ -167,6 +196,23 @@ namespace ShareholdersAnalyzer
             {
                 return false;
             }
+        }
+        
+        private string FoundJobTitle(string summaryText, string companyName)
+        {
+            Regex regex = new Regex("is(.*)at " + companyName);
+            var v = regex.Match(summaryText);
+            return v.Groups[1].ToString();
+        }
+
+        private bool isPresentedInSummary(string summaryText, string companyName)
+        {
+            return summaryText.Contains("is a Director at" + companyName) 
+                || summaryText.Contains("is an independent Director at" + companyName) 
+                || summaryText.Contains("is on the board of Directors at" + companyName) 
+                || summaryText.Contains("is on the board at" + companyName) 
+                || summaryText.Contains("founded" + companyName) 
+                || summaryText.Contains("founder at" + companyName);
         }
 
 		private bool isSiteContainsName(IEnumerable<string> data, string name)
