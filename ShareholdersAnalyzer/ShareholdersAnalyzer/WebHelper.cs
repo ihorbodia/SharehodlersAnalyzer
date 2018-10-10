@@ -8,7 +8,7 @@ namespace ShareholdersAnalyzer
 {
 	public static class WebHelper
 	{
-		public static async Task<HtmlDocument> GetPageData(string name, string URL)
+		public static HtmlDocument GetPageData(string name, string URL)
 		{
 			if (string.IsNullOrEmpty(name))
 			{
@@ -32,7 +32,7 @@ namespace ShareholdersAnalyzer
 			HtmlDocument htmlDoc = null;
 			try
 			{
-				htmlDoc = await web.LoadFromWebAsync(html);
+				htmlDoc = web.Load(html);
 			}
 			catch (Exception ex)
 			{

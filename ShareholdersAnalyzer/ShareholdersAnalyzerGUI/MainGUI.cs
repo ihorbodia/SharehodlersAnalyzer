@@ -9,7 +9,9 @@ namespace ShareholdersAnalyzerGUI
 	public partial class MainGUI : Form
 	{
 		string chosenPath = string.Empty;
-		public MainGUI()
+        ShareholderAnalyzerLogic ms;
+
+        public MainGUI()
 		{
 			InitializeComponent();
 			StatusLabelText.Text = "Choose file";
@@ -33,6 +35,7 @@ namespace ShareholdersAnalyzerGUI
 
 		private void ProcessFilesButton_Click(object sender, EventArgs e)
 		{
+            ms = new ShareholderAnalyzerLogic(chosenPath);
 			if (string.IsNullOrEmpty(chosenPath.Trim()))
 			{
 				return;
@@ -58,20 +61,27 @@ namespace ShareholdersAnalyzerGUI
 		}
 		private void RunProgram()
 		{
-			ShareholderAnalyzerLogic ms = new ShareholderAnalyzerLogic(chosenPath);
 			ms.ProcessFile();
-			try
-			{
-				ms.SaveFile();
-			}
-			catch (InvalidOperationException ex)
-			{
-				DialogResult result = MessageBox.Show("Try to close excel file and click OK.", "Error while saving file", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-				if (result == DialogResult.OK)
-				{
-					ms.SaveFile();
-				}
-			}
-		}
+            SaveFile();
+        }
+        private void SaveFile()
+        {
+            try
+            {
+                ms.SaveFile();
+            }
+            catch (InvalidOperationException ex)
+            {
+                DialogResult result = MessageBox.Show("Try to close excel file and click OK.", "Error while saving file", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                if (result == DialogResult.OK)
+                {
+                    SaveFile();
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
 	}
 }

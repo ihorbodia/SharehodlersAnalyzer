@@ -6,7 +6,6 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ShareholdersAnalyzer
@@ -46,7 +45,7 @@ namespace ShareholdersAnalyzer
 				var end = workSheet.Dimension.End.Row;
                 for (int row = start; row <= end; row++)
                 {
-                    string name = workSheet.Cells[row, 3].Text;
+                    string name = FilesHelper.CleanName(workSheet.Cells[row, 3].Text);
                     string URL = workSheet.Cells[row, 4].Text;
                     string companyName = FilesHelper.CleanCompanyName(workSheet.Cells[row, 1].Text);
                     if (string.IsNullOrEmpty(name))
@@ -56,30 +55,39 @@ namespace ShareholdersAnalyzer
                     object arg = row;
 #if DEBUG
                     int rowNum = Convert.ToInt32(row);
-                    var htmlDocument = WebHelper.GetPageData(name, URL).GetAwaiter().GetResult();
-                    if (IsFF(htmlDocument, name, companyName))
+                    var htmlDocument = WebHelper.GetPageData(name, URL);
+                    bool? result = IsFF(htmlDocument, name, companyName);
+                    if (result == true)
                     {
                         workSheet.Cells[rowNum, 6].Value = "FF";
                     }
-                    else
+                    if (result == false)
                     {
                         workSheet.Cells[rowNum, 6].Value = "NFF";
                     }
+                    if (result == null)
+                    {
+                        workSheet.Cells[rowNum, 6].Value = "To be checked";
+                    }
                     Debug.WriteLine(rowNum);
 #else
-                    tasks.Add(Task.Factory.StartNew(new Action<object>(async (argValue) =>
+                    tasks.Add(Task.Factory.StartNew(new Action<object>((argValue) =>
                     {
                         int rowNum = Convert.ToInt32(argValue);
-                        var htmlDocument = await WebHelper.GetPageData(name, URL);
-                        if (IsFF(htmlDocument, name))
+                        var htmlDocument = WebHelper.GetPageData(name, URL);
+                        bool? result = IsFF(htmlDocument, name, companyName);
+                        if (result == true)
                         {
                             workSheet.Cells[rowNum, 6].Value = "FF";
                         }
-                        else
+                        if (result == false)
                         {
                             workSheet.Cells[rowNum, 6].Value = "NFF";
                         }
-                        Debug.WriteLine(rowNum);
+                        if (result == null)
+                        {
+                            workSheet.Cells[rowNum, 6].Value = "To be checked";
+                        }
                     }), arg));
 #endif
                 }
@@ -93,21 +101,28 @@ namespace ShareholdersAnalyzer
 			p.Dispose();
 		}
 
-		private bool IsFF(HtmlDocument htmlDocument, string name, string companyName)
+		private bool? IsFF(HtmlDocument htmlDocument, string name, string companyName)
 		{
-			var table = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
+            Debug.WriteLine(name);
+			var shareholdersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
 				.FirstOrDefault(x => x.Attributes.Count > 5);
-			IEnumerable<string> data = null;
-            if (table != null)
+
+            var managersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
+                .FirstOrDefault(x => x.Attributes.Count < 6)
+                .ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
+                .SelectMany(x => x.ChildNodes.Where(y => y.Name == "td"));
+
+            IEnumerable<string> data = null;
+            if (shareholdersTable != null)
 			{
-				data = table.ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
+				data = shareholdersTable.ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
 				.Select(x => x.ChildNodes.Where(y => y.Name == "td").FirstOrDefault().InnerText.Trim());
 			}
             if (!isSiteContainsName(data, name))
             {
                 return false;
             }
-            var linkToSummary = table.ChildNodes
+            var linkToSummary = shareholdersTable.ChildNodes
                 .Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
                 .Where(x => x.FirstChild.Attributes["class"].Value == "nfvtL")
                 .Where(x => x.FirstChild.FirstChild.Name == "a")
@@ -117,31 +132,42 @@ namespace ShareholdersAnalyzer
             {
                 return true;
             }
-
             var doc = WebHelper.GetPageSummaryData(name, linkToSummary).GetAwaiter().GetResult().DocumentNode;
+            var htmlPositionsTable = doc.SelectNodes("//table[@class='tabElemNoBor overfH']")
+                .FirstOrDefault(x => x.InnerText.Contains("Current positions"));
 
-            var currentPositionCompanies =
-                doc.SelectNodes("//table[@class='tabElemNoBor overfH']")
-                .Single(x => x.InnerText.Contains("Current positions"))
+            if (htmlPositionsTable == null)
+            {
+                return false;
+            }
+            var currentPositionCompanies = htmlPositionsTable
                 .ChildNodes
-                .Single(x => x.Name == "tr" && x.LastChild.Name == "td")
+                .FirstOrDefault(x => x.Name == "tr" && x.LastChild.Name == "td")
                 .FirstChild
                 .FirstChild
                 .FirstChild
                 .ChildNodes
                 .Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
-                .Select(x => x.ChildNodes.Where(y => y.Name == "td").FirstOrDefault().InnerText.Trim());
-            string test;
-            foreach (var item in currentPositionCompanies)
+                .Select(x => x.ChildNodes.Where(y => y.Name == "td").ToList());
+
+            string jobTitle = string.Empty;
+            foreach (var positionRow in currentPositionCompanies)
             {
-                if (FilesHelper.CleanCompanyName(item).Contains(companyName))
+                if (FilesHelper.CleanCompanyName(positionRow[0].InnerText.Trim()).Equals(companyName))
                 {
-                    test = item;
+                    jobTitle = positionRow[1].InnerText.Trim();
                 }
             }
 
-            return false;
-		}
+            if (managersTable.Any(x => x.InnerText.Equals(jobTitle)))
+            {
+                return null;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
 		private bool isSiteContainsName(IEnumerable<string> data, string name)
 		{

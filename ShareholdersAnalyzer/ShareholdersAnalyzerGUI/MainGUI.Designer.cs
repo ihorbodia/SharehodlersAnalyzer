@@ -113,7 +113,6 @@
             this.Controls.Add(this.ChooseFirstFolderButton);
             this.Name = "MainGUI";
             this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
