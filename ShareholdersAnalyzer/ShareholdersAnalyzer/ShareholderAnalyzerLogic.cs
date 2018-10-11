@@ -123,7 +123,7 @@ namespace ShareholdersAnalyzer
 			}
             if (!isSiteContainsName(data, name))
             {
-                return false;
+                return true;
             }
             var linkToSummary = shareholdersTable.ChildNodes
                 .Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
