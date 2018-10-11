@@ -104,6 +104,8 @@ namespace ShareholdersAnalyzer
 
 		private bool? IsFF(HtmlDocument htmlDocument, string name, string companyName)
 		{
+            name = name.ToUpper();
+            companyName = companyName.ToUpper();
             Debug.WriteLine(name);
 			var shareholdersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
 				.FirstOrDefault(x => x.Attributes.Count > 5);
@@ -211,12 +213,12 @@ namespace ShareholdersAnalyzer
 
         private bool isPresentedInSummary(string summaryText, string companyName)
         {
-            return summaryText.Contains("is a Director at" + companyName) 
-                || summaryText.Contains("is an independent Director at" + companyName) 
-                || summaryText.Contains("is on the board of Directors at" + companyName) 
-                || summaryText.Contains("is on the board at" + companyName) 
-                || summaryText.Contains("founded" + companyName) 
-                || summaryText.Contains("founder at" + companyName);
+            return summaryText.Contains("is a Director at".ToUpper() + companyName) 
+                || summaryText.Contains("is an independent Director at".ToUpper() + companyName) 
+                || summaryText.Contains("is on the board of Directors at".ToUpper() + companyName) 
+                || summaryText.Contains("is on the board at".ToUpper() + companyName) 
+                || summaryText.Contains("founded".ToUpper() + companyName) 
+                || summaryText.Contains("founder at".ToUpper() + companyName);
         }
 
 		private bool isSiteContainsName(IEnumerable<string> data, string name)
