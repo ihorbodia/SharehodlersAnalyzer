@@ -36,12 +36,12 @@ namespace ShareholdersAnalyzer
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex.Message);
+				Console.WriteLine(ex.Message);
 			}
 			return htmlDoc;
 		}
 
-        public static async Task<HtmlDocument> GetPageSummaryData(string name, string URL)
+        public static HtmlDocument GetPageSummaryData(string name, string URL)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -65,11 +65,11 @@ namespace ShareholdersAnalyzer
             HtmlDocument htmlDoc = null;
             try
             {
-                htmlDoc = await web.LoadFromWebAsync(html);
+                htmlDoc = web.Load(html);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message);
             }
             return htmlDoc;
         }

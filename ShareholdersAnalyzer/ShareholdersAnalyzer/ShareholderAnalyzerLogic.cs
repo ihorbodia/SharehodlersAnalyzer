@@ -49,15 +49,11 @@ namespace ShareholdersAnalyzer
                     string name = FilesHelper.CleanName(workSheet.Cells[row, 3].Text);
                     string URL = workSheet.Cells[row, 4].Text;
                     string companyName = FilesHelper.CleanCompanyName(workSheet.Cells[row, 1].Text);
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        break;
-                    }
                     object arg = row;
 #if DEBUG
                     int rowNum = Convert.ToInt32(row);
                     var htmlDocument = WebHelper.GetPageData(name, URL);
-                    bool? result = IsFF(htmlDocument, name.ToUpper(), companyName.ToUpper());
+                    bool? result = IsFF(htmlDocument, name, companyName);
                     if (result == true)
                     {
                         workSheet.Cells[rowNum, 6].Value = "FF";
@@ -76,6 +72,8 @@ namespace ShareholdersAnalyzer
                     {
                         int rowNum = Convert.ToInt32(argValue);
                         var htmlDocument = WebHelper.GetPageData(name, URL);
+                        Console.WriteLine(companyName);
+                        Console.WriteLine(name);
                         bool? result = IsFF(htmlDocument, name, companyName);
                         if (result == true)
                         {
@@ -104,6 +102,10 @@ namespace ShareholdersAnalyzer
 
 		private bool? IsFF(HtmlDocument htmlDocument, string name, string companyName)
 		{
+            if (string.IsNullOrEmpty(companyName) || string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
             name = name.ToUpper();
             companyName = companyName.ToUpper();
             Debug.WriteLine(name);
@@ -135,7 +137,7 @@ namespace ShareholdersAnalyzer
             {
                 return true;
             }
-            var doc = WebHelper.GetPageSummaryData(name, linkToSummary).GetAwaiter().GetResult().DocumentNode;
+            var doc = WebHelper.GetPageSummaryData(name, linkToSummary).DocumentNode;
             var personPageTables = doc.SelectNodes("//table[@class='tabElemNoBor overfH']");
 
             var htmlPositionsTable = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Current positions"));
@@ -193,6 +195,10 @@ namespace ShareholdersAnalyzer
             {
                 return true;
             }
+            if (managersTable == null)
+            {
+                return false;
+            }
 
             if (managersTable.Any(x => x.InnerText.Equals(jobTitle)))
             {
@@ -208,7 +214,11 @@ namespace ShareholdersAnalyzer
         {
             Regex regex = new Regex("IS (.*) AT " + companyName);
             var v = regex.Match(summaryText);
-            return v.Groups[1].ToString();
+            if (v.Groups[1] != null)
+            {
+                return v.Groups[1].ToString();
+            }
+            return string.Empty;
         }
 
         private bool isPresentedInSummary(string summaryText, string companyName)
