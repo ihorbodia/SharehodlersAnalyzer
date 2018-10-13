@@ -72,8 +72,6 @@ namespace ShareholdersAnalyzer
                     {
                         int rowNum = Convert.ToInt32(argValue);
                         var htmlDocument = WebHelper.GetPageData(name, URL);
-                        Console.WriteLine(companyName);
-                        Console.WriteLine(name);
                         bool? result = IsFF(htmlDocument, name, companyName);
                         if (result == true)
                         {
@@ -200,7 +198,7 @@ namespace ShareholdersAnalyzer
                 return false;
             }
 
-            if (managersTable.Any(x => x.InnerText.Equals(jobTitle)))
+            if (managersTable.Any(x => x.InnerText.ToUpper().Equals(jobTitle)))
             {
                 return null;
             }
