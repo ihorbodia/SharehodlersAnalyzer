@@ -111,7 +111,7 @@ namespace ShareholdersAnalyzer
 				.FirstOrDefault(x => x.Attributes.Count > 5);
 
             var managersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
-                .FirstOrDefault(x => x.Attributes.Count < 6)
+                .FirstOrDefault(x => x.Attributes.Count < 6)?
                 .ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
                 .SelectMany(x => x.ChildNodes.Where(y => y.Name == "td"));
 
@@ -157,8 +157,9 @@ namespace ShareholdersAnalyzer
             
             if (currentPositionCompanies == null)
             {
-                var summaryText = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Summary")).InnerText.ToUpper();
-                if (summaryText.IndexOf(companyName) != summaryText.LastIndexOf(companyName) && summaryText.IndexOf(companyName) != -1)
+				var summaryTextBlock = personPageTables.FirstOrDefault(x => x.InnerText.Contains("Summary"));
+				var summaryText = summaryTextBlock?.InnerText?.ToUpper() ?? string.Empty;
+				if (summaryText.IndexOf(companyName) != summaryText.LastIndexOf(companyName) && summaryText.IndexOf(companyName) != -1)
                 {
                     return null;
                 }
