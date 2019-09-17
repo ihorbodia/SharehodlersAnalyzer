@@ -15,23 +15,28 @@ namespace AutomationProjectShareholderBaseNationalityCheck
 		{
 			logic.GetUSASecurityFilesFolderPath();
 			this.SecurityFolderPathLabel.Text = logic.securityFolderPath.ToString();
-		}
+            this.StartButton.Enabled = logic.CheckIsAppCanStartProcess();
+        }
 
 		private void SelectUSADocFileButton_Click(object sender, System.EventArgs e)
 		{
 			logic.GetUSADocFilePath();
 			this.USADocFilePathLabel.Text = logic.USADocFilePath.ToString();
-		}
+            this.StartButton.Enabled = logic.CheckIsAppCanStartProcess();
+        }
 
 		private void SelectUSAListFileButton_Click(object sender, System.EventArgs e)
 		{
 			logic.GetUSAListFilesPath();
 			this.USAListFilePathLabel.Text = logic.USAListFilePath.ToString();
-		}
+            this.StartButton.Enabled = logic.CheckIsAppCanStartProcess();
+        }
 
 		private void StartButton_Click(object sender, System.EventArgs e)
 		{
-			logic.StartProcessing();	
-		}
+            this.StatusLabel.Text = "Processing...";
+            logic.StartProcessing();
+            this.StatusLabel.Text = "Finished";
+        }
 	}
 }
