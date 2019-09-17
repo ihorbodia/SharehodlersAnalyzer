@@ -1,6 +1,9 @@
-﻿using OfficeOpenXml;
+﻿using ExcelDataReader;
+using OfficeOpenXml;
+using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 
 namespace AutomationProjectShareholderBaseNationalityCheck
 {
@@ -10,45 +13,88 @@ namespace AutomationProjectShareholderBaseNationalityCheck
         public FileInfo USADocFilePath { get; private set; }
         public FileInfo USAListFilePath { get; private set; }
 
-        public void GetUSASecurityFilesFolderPath()
+        public void GetUSASecurityFilesFolderPath(string str)
         {
-            var str = FilesHelper.SelectFolder();
+			if (string.IsNullOrWhiteSpace(str)) { str = FilesHelper.SelectFolder(); }
             if (string.IsNullOrWhiteSpace(str)) return;
             securityFolderPath = new DirectoryInfo(str);
-        }
-        public void GetUSADocFilePath()
+
+			Properties.Settings.Default.USAFolderPath = str;
+			Properties.Settings.Default.Save();
+		}
+        public void GetUSADocFilePath(string str)
         {
-            var str = FilesHelper.SelectFile();
+			if (string.IsNullOrWhiteSpace(str)) { str = FilesHelper.SelectFile(); }
             if (string.IsNullOrWhiteSpace(str)) return;
             USADocFilePath = new FileInfo(str);
-        }
-        public void GetUSAListFilesPath()
+
+			Properties.Settings.Default.USADocFilePath = str;
+			Properties.Settings.Default.Save();
+		}
+        public void GetUSAListFilesPath(string str)
         {
-            var str = FilesHelper.SelectFile();
-            if (string.IsNullOrWhiteSpace(str)) return;
+			if (string.IsNullOrWhiteSpace(str)) { str = FilesHelper.SelectFile(); }
+			if (string.IsNullOrWhiteSpace(str)) { return; }
             USAListFilePath = new FileInfo(str);
-        }
 
-        public bool CheckIsAppCanStartProcess() => 
-                Directory.Exists(securityFolderPath?.FullName) &&
-                 File.Exists(USADocFilePath?.FullName) &&
-                 File.Exists(USAListFilePath?.FullName);
+			Properties.Settings.Default.USAListFilePath = str;
+			Properties.Settings.Default.Save();
+		}
 
-        public void StartProcessing()
-        {
-            ExcelPackage usaDocFile = new ExcelPackage(USADocFilePath);
-            ExcelWorksheet workSheet = usaDocFile.Workbook.Worksheets[1];
-            DataTable dt = new DataTable();
-            var start = workSheet.Dimension.Start.Row + 1;
-            var end = workSheet.Dimension.End.Row;
-            for (int row = start; row <= end; row++)
-            {
-                string name = FilesHelper.CleanName(workSheet.Cells[row, 3].Text);
-                string URL = workSheet.Cells[row, 4].Text;
-                string companyName = FilesHelper.CleanCompanyName(workSheet.Cells[row, 1].Text);
-                object arg = row;
+		public bool CheckIsAppCanStartProcess() => true;
+                //Directory.Exists(securityFolderPath?.FullName) &&
+                //File.Exists(USADocFilePath?.FullName) &&
+                //File.Exists(USAListFilePath?.FullName);
 
-            }
-        }
+		public void StartProcessing()
+		{
+			FileInfo[] Files = securityFolderPath.GetFiles("*.xlsx");
+			foreach (FileInfo file in Files)
+			{
+				string companyName = string.Empty;
+				string fileName = file.Name.Replace(".xlsx", "");
+				string docFileValue = string.Empty;
+
+				using (var stream = File.Open(file.FullName, FileMode.Open, FileAccess.Read))
+				{
+					using (var reader = ExcelReaderFactory.CreateReader(stream))
+					{
+						var result = reader
+							.AsDataSet()
+							.Tables["Feuil1"]
+							.AsEnumerable();
+						if (result.Count() > 1)
+						{
+							companyName = result.Skip(1).First()?.ItemArray[0].ToString();
+						}
+					}
+				}
+
+				using (var stream = File.Open(USADocFilePath.FullName, FileMode.Open, FileAccess.ReadWrite))
+				{
+					using (var reader = ExcelReaderFactory.CreateReader(stream))
+					{
+						var result = reader
+							.AsDataSet()
+							.Tables["Feuil2"]
+							.AsEnumerable();
+						var item = result.FirstOrDefault(x => x.ItemArray[0].ToString().Equals(companyName));
+						docFileValue = item?.ItemArray[5].ToString();
+					}
+				}
+
+				using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(file.FullName)))
+				{
+					using (ExcelPackage pckg = new ExcelPackage(ms))
+					{
+						var sheet = pckg.Workbook.Worksheets[1];
+						
+						//TODO:
+
+						pckg.Save();
+					}
+				}
+			}
+		}
     }
 }

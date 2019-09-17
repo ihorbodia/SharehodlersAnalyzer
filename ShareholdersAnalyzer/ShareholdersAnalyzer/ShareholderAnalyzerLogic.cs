@@ -41,7 +41,6 @@ namespace ShareholdersAnalyzer
 			{
 				p = new ExcelPackage(fi);
 				ExcelWorksheet workSheet = p.Workbook.Worksheets[1];
-				DataTable dt = new DataTable();
 				var start = workSheet.Dimension.Start.Row + 1;
 				var end = workSheet.Dimension.End.Row;
                 for (int row = start; row <= end; row++)
