@@ -70,21 +70,29 @@ namespace ShareholdersAnalyzer
 #else
                     tasks.Add(Task.Factory.StartNew(new Action<object>((argValue) =>
                     {
-                        int rowNum = Convert.ToInt32(argValue);
-                        var htmlDocument = WebHelper.GetPageData(name, URL);
-                        bool? result = IsFF(htmlDocument, name, companyName);
-                        if (result == true)
-                        {
-                            workSheet.Cells[rowNum, 6].Value = "FF";
-                        }
-                        if (result == false)
-                        {
-                            workSheet.Cells[rowNum, 6].Value = "NFF";
-                        }
-                        if (result == null)
-                        {
-                            workSheet.Cells[rowNum, 6].Value = "To be checked";
-                        }
+						try
+						{
+							int rowNum = Convert.ToInt32(argValue);
+							var htmlDocument = WebHelper.GetPageData(name, URL);
+							bool? result = IsFF(htmlDocument, name, companyName);
+							if (result == true)
+							{
+								workSheet.Cells[rowNum, 6].Value = "FF";
+							}
+							if (result == false)
+							{
+								workSheet.Cells[rowNum, 6].Value = "NFF";
+							}
+							if (result == null)
+							{
+								workSheet.Cells[rowNum, 6].Value = "To be checked";
+							}
+						}
+						catch (Exception ex)
+						{
+							Console.WriteLine(ex);
+						}
+                       
                     }), arg));
 #endif
                 }
@@ -107,13 +115,29 @@ namespace ShareholdersAnalyzer
             name = name.ToUpper();
             companyName = companyName.ToUpper();
             Debug.WriteLine(name);
-			var shareholdersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
+			HtmlNode shareholdersTable = null;
+			try
+			{
+				shareholdersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
 				.FirstOrDefault(x => x.Attributes.Count > 5);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 
-            var managersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
-                .FirstOrDefault(x => x.Attributes.Count < 6)?
-                .ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
-                .SelectMany(x => x.ChildNodes.Where(y => y.Name == "td"));
+			IEnumerable<HtmlNode> managersTable = null;
+			try
+			{
+				managersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
+					.FirstOrDefault(x => x.Attributes.Count < 6)?
+					.ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
+					.SelectMany(x => x.ChildNodes.Where(y => y.Name == "td"));
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 
             IEnumerable<string> data = null;
             if (shareholdersTable != null)

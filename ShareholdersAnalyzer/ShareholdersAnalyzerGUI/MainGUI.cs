@@ -42,6 +42,7 @@ namespace ShareholdersAnalyzerGUI
 			}
 			StatusLabelText.Text = "Processing";
 			ProcessFilesButton.BeginInvoke((MethodInvoker)delegate () { ProcessFilesButton.Enabled = false; });
+			ChooseFirstFolderButton.BeginInvoke((MethodInvoker)delegate () { ChooseFirstFolderButton.Enabled = false; });
 			try
 			{
 				new Task(() =>
@@ -51,6 +52,7 @@ namespace ShareholdersAnalyzerGUI
 					t.Join();
 					StatusLabelText.BeginInvoke((MethodInvoker)delegate () { StatusLabelText.Text = "Finish"; });
 					ProcessFilesButton.BeginInvoke((MethodInvoker)delegate () { ProcessFilesButton.Enabled = true; });
+					ChooseFirstFolderButton.BeginInvoke((MethodInvoker)delegate () { ChooseFirstFolderButton.Enabled = true; });
 					Console.WriteLine("Finish");
 				}).Start();
 			}
