@@ -9,6 +9,7 @@ namespace ShareholdersAnalyzerGUI
 	public partial class MainGUI : Form
 	{
 		string chosenPath = string.Empty;
+		string choosenTermsFile = string.Empty;
         ShareholderAnalyzerLogic ms;
 
         public MainGUI()
@@ -85,5 +86,15 @@ namespace ShareholdersAnalyzerGUI
                 }
             }
         }
+
+		private void ChooseTermsFile_Click(object sender, EventArgs e)
+		{
+			chosenPath = FilesHelper.SelectFile();
+			if (!string.IsNullOrEmpty(chosenPath.Trim()) && !string.IsNullOrEmpty(choosenTermsFile.Trim()))
+			{
+				StatusLabelText.Text = "Start process";
+				ChoosenPathLabel.Text = chosenPath;
+			}
+		}
 	}
 }
