@@ -227,7 +227,9 @@ namespace ShareholdersAnalyzer
                 return false;
             }
 
-            if (managersTable.Any(x => x.InnerText.ToUpper().Equals(jobTitle)))
+            if (managersTable.Any(x => x.InnerText.ToUpper().Equals(jobTitle) && 
+                                        !jobTitle.ToUpper().Equals("DIRECTOR") && 
+                                        !jobTitle.ToUpper().Equals("INDEPENDENT DIRECTOR")))
             {
                 return null;
             }
