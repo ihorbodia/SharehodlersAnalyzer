@@ -13,14 +13,14 @@ namespace ShareholdersAnalyzer
 {
 	public class ShareholderAnalyzerLogic
 	{
+		string excelFilePath;
+        string termsFilePath;
+        ExcelPackage p;
 
-		String excelFileName;
-		String excelFilePath;
-		ExcelPackage p;
-
+        List<string> summaryTerms;
 		List<Task> tasks;
 
-		public ShareholderAnalyzerLogic(string filePath)
+		public ShareholderAnalyzerLogic(string filePath, string termsFilePath)
 		{
 			if (filePath.Contains("xlsx#"))
 			{
@@ -29,18 +29,22 @@ namespace ShareholdersAnalyzer
 			else
 			{
 				tasks = new List<Task>();
-				excelFileName = new FileInfo(filePath).Name;
-				excelFilePath = new FileInfo(filePath).FullName;
+                summaryTerms = new List<string>();
+
+                this.excelFilePath = new FileInfo(filePath).FullName;
+                this.termsFilePath = new FileInfo(termsFilePath).FullName;
 			}
 		}
 
 		public void ProcessFile()
 		{
-			FileInfo fi = new FileInfo(excelFilePath);
-			if (fi.Exists)
+			FileInfo excelFi = new FileInfo(excelFilePath);
+            FileInfo termsFi = new FileInfo(termsFilePath);
+            if (excelFi.Exists &&  termsFi.Exists)
 			{
-				p = new ExcelPackage(fi);
-				ExcelWorksheet workSheet = p.Workbook.Worksheets[1];
+				p = new ExcelPackage(excelFi);
+                summaryTerms.AddRange(File.ReadAllLines(termsFilePath));
+                ExcelWorksheet workSheet = p.Workbook.Worksheets[1];
 				DataTable dt = new DataTable();
 				var start = workSheet.Dimension.Start.Row + 1;
 				var end = workSheet.Dimension.End.Row;
@@ -70,21 +74,29 @@ namespace ShareholdersAnalyzer
 #else
                     tasks.Add(Task.Factory.StartNew(new Action<object>((argValue) =>
                     {
-                        int rowNum = Convert.ToInt32(argValue);
-                        var htmlDocument = WebHelper.GetPageData(name, URL);
-                        bool? result = IsFF(htmlDocument, name, companyName);
-                        if (result == true)
-                        {
-                            workSheet.Cells[rowNum, 6].Value = "FF";
-                        }
-                        if (result == false)
-                        {
-                            workSheet.Cells[rowNum, 6].Value = "NFF";
-                        }
-                        if (result == null)
-                        {
-                            workSheet.Cells[rowNum, 6].Value = "To be checked";
-                        }
+						try
+						{
+							int rowNum = Convert.ToInt32(argValue);
+							var htmlDocument = WebHelper.GetPageData(name, URL);
+							bool? result = IsFF(htmlDocument, name, companyName);
+							if (result == true)
+							{
+								workSheet.Cells[rowNum, 6].Value = "FF";
+							}
+							if (result == false)
+							{
+								workSheet.Cells[rowNum, 6].Value = "NFF";
+							}
+							if (result == null)
+							{
+								workSheet.Cells[rowNum, 6].Value = "To be checked";
+							}
+						}
+						catch (Exception ex)
+						{
+							Console.WriteLine(ex);
+						}
+                       
                     }), arg));
 #endif
                 }
@@ -107,13 +119,29 @@ namespace ShareholdersAnalyzer
             name = name.ToUpper();
             companyName = companyName.ToUpper();
             Debug.WriteLine(name);
-			var shareholdersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
+			HtmlNode shareholdersTable = null;
+			try
+			{
+				shareholdersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
 				.FirstOrDefault(x => x.Attributes.Count > 5);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 
-            var managersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
-                .FirstOrDefault(x => x.Attributes.Count < 6)?
-                .ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
-                .SelectMany(x => x.ChildNodes.Where(y => y.Name == "td"));
+			IEnumerable<HtmlNode> managersTable = null;
+			try
+			{
+				managersTable = htmlDocument.DocumentNode.SelectNodes("//table[@class='nfvtTab linkTabBl']")
+					.FirstOrDefault(x => x.Attributes.Count < 6)?
+					.ChildNodes.Where(x => x.Name == "tr" && x.PreviousSibling.Name == "tr")
+					.SelectMany(x => x.ChildNodes.Where(y => y.Name == "td"));
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 
             IEnumerable<string> data = null;
             if (shareholdersTable != null)
@@ -130,7 +158,7 @@ namespace ShareholdersAnalyzer
                 .Where(x => x.FirstChild.Attributes["class"].Value == "nfvtL")
                 .Where(x => x.FirstChild.FirstChild.Name == "a")
                 .Where(x => x.InnerText.Trim().ToUpper().Contains(name))
-                .Select(n => n.FirstChild.FirstChild.Attributes["href"].Value).FirstOrDefault();
+                .Select(n => n.FirstChild.FirstChild.Attributes["href"].Value).FirstOrDefault(); 
             if (linkToSummary == null)
             {
                 return true;
@@ -183,9 +211,9 @@ namespace ShareholdersAnalyzer
             {
                 foreach (var positionRow in currentPositionCompanies)
                 {
-                    if (FilesHelper.CleanCompanyName(positionRow[0].InnerText.Trim()).Equals(companyName))
+                    if (FilesHelper.CleanCompanyName(positionRow[0].InnerText.Trim().ToUpper()).Contains(companyName))
                     {
-                        jobTitle = positionRow[1].InnerText.Trim();
+                        jobTitle = positionRow[1].InnerText.Trim().ToUpper();
                         break;
                     }
                 }
@@ -199,7 +227,9 @@ namespace ShareholdersAnalyzer
                 return false;
             }
 
-            if (managersTable.Any(x => x.InnerText.ToUpper().Equals(jobTitle)))
+            if (managersTable.Any(x => x.InnerText.ToUpper().Equals(jobTitle) && 
+                                        !jobTitle.ToUpper().Equals("DIRECTOR") && 
+                                        !jobTitle.ToUpper().Equals("INDEPENDENT DIRECTOR")))
             {
                 return null;
             }
@@ -222,12 +252,18 @@ namespace ShareholdersAnalyzer
 
         private bool isPresentedInSummary(string summaryText, string companyName)
         {
-            return summaryText.Contains("is a Director at".ToUpper() + companyName) 
-                || summaryText.Contains("is an independent Director at".ToUpper() + companyName) 
-                || summaryText.Contains("is on the board of Directors at".ToUpper() + companyName) 
-                || summaryText.Contains("is on the board at".ToUpper() + companyName) 
-                || summaryText.Contains("founded".ToUpper() + companyName) 
-                || summaryText.Contains("founder at".ToUpper() + companyName);
+            return summaryTerms.Any(searchTerm =>
+            {
+                searchTerm.Replace("{company_name}", companyName);
+                return summaryText.Contains(searchTerm);
+            });
+
+            //return summaryText.Contains("is a Director at".ToUpper() + companyName) 
+            //    || summaryText.Contains("is an independent Director at".ToUpper() + companyName) 
+            //    || summaryText.Contains("is on the board of Directors at".ToUpper() + companyName) 
+            //    || summaryText.Contains("is on the board at".ToUpper() + companyName) 
+            //    || summaryText.Contains("founded".ToUpper() + companyName) 
+            //    || summaryText.Contains("founder at".ToUpper() + companyName);
         }
 
 		private bool isSiteContainsName(IEnumerable<string> data, string name)
@@ -241,7 +277,7 @@ namespace ShareholdersAnalyzer
 			{
 				foreach (var item in data)
 				{
-					if (item.ToUpper().Contains(name.ToUpper()))
+                    if (FilesHelper.CleanName(item).ToUpper().Contains(name.ToUpper()))
 					{
 						return true;
 					}

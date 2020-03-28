@@ -28,95 +28,128 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.FolderChosenPath = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.ChoosenPathLabel = new System.Windows.Forms.Label();
-            this.StatusLabelText = new System.Windows.Forms.Label();
-            this.ProcessFilesButton = new System.Windows.Forms.Button();
-            this.ChooseFirstFolderButton = new System.Windows.Forms.Button();
-            this.groupBox1.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.FolderChosenPath);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.ChoosenPathLabel);
-            this.groupBox1.Controls.Add(this.StatusLabelText);
-            this.groupBox1.Location = new System.Drawing.Point(7, 0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(428, 176);
-            this.groupBox1.TabIndex = 17;
-            this.groupBox1.TabStop = false;
-            // 
-            // FolderChosenPath
-            // 
-            this.FolderChosenPath.AutoSize = true;
-            this.FolderChosenPath.Location = new System.Drawing.Point(9, 16);
-            this.FolderChosenPath.Name = "FolderChosenPath";
-            this.FolderChosenPath.Size = new System.Drawing.Size(50, 13);
-            this.FolderChosenPath.TabIndex = 11;
-            this.FolderChosenPath.Text = "File path:";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 150);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(40, 13);
-            this.label1.TabIndex = 9;
-            this.label1.Text = "Status:";
-            // 
-            // ChoosenPathLabel
-            // 
-            this.ChoosenPathLabel.Location = new System.Drawing.Point(9, 40);
-            this.ChoosenPathLabel.Name = "ChoosenPathLabel";
-            this.ChoosenPathLabel.Size = new System.Drawing.Size(408, 13);
-            this.ChoosenPathLabel.TabIndex = 12;
-            this.ChoosenPathLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // StatusLabelText
-            // 
-            this.StatusLabelText.Location = new System.Drawing.Point(47, 150);
-            this.StatusLabelText.Name = "StatusLabelText";
-            this.StatusLabelText.Size = new System.Drawing.Size(160, 13);
-            this.StatusLabelText.TabIndex = 10;
-            // 
-            // ProcessFilesButton
-            // 
-            this.ProcessFilesButton.Location = new System.Drawing.Point(330, 179);
-            this.ProcessFilesButton.Name = "ProcessFilesButton";
-            this.ProcessFilesButton.Size = new System.Drawing.Size(105, 25);
-            this.ProcessFilesButton.TabIndex = 16;
-            this.ProcessFilesButton.Text = "Process files";
-            this.ProcessFilesButton.UseVisualStyleBackColor = true;
-            this.ProcessFilesButton.Click += new System.EventHandler(this.ProcessFilesButton_Click);
-            // 
-            // ChooseFirstFolderButton
-            // 
-            this.ChooseFirstFolderButton.Location = new System.Drawing.Point(7, 180);
-            this.ChooseFirstFolderButton.Name = "ChooseFirstFolderButton";
-            this.ChooseFirstFolderButton.Size = new System.Drawing.Size(105, 25);
-            this.ChooseFirstFolderButton.TabIndex = 15;
-            this.ChooseFirstFolderButton.Text = "Choose file";
-            this.ChooseFirstFolderButton.UseVisualStyleBackColor = true;
-            this.ChooseFirstFolderButton.Click += new System.EventHandler(this.ChooseFirstFolderButton_Click);
-            // 
-            // MainGUI
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(442, 211);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.ProcessFilesButton);
-            this.Controls.Add(this.ChooseFirstFolderButton);
-            this.Name = "MainGUI";
-            this.ShowIcon = false;
-            this.Text = "Form1";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.ResumeLayout(false);
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.FolderChosenPath = new System.Windows.Forms.Label();
+			this.label1 = new System.Windows.Forms.Label();
+			this.ChoosenPathLabel = new System.Windows.Forms.Label();
+			this.StatusLabelText = new System.Windows.Forms.Label();
+			this.ProcessFilesButton = new System.Windows.Forms.Button();
+			this.ChooseFirstFolderButton = new System.Windows.Forms.Button();
+			this.ChooseTermsFile = new System.Windows.Forms.Button();
+			this.label2 = new System.Windows.Forms.Label();
+			this.TermsFilePathLabel = new System.Windows.Forms.Label();
+			this.groupBox1.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.Controls.Add(this.label2);
+			this.groupBox1.Controls.Add(this.TermsFilePathLabel);
+			this.groupBox1.Controls.Add(this.FolderChosenPath);
+			this.groupBox1.Controls.Add(this.label1);
+			this.groupBox1.Controls.Add(this.ChoosenPathLabel);
+			this.groupBox1.Controls.Add(this.StatusLabelText);
+			this.groupBox1.Location = new System.Drawing.Point(7, 0);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(428, 176);
+			this.groupBox1.TabIndex = 17;
+			this.groupBox1.TabStop = false;
+			// 
+			// FolderChosenPath
+			// 
+			this.FolderChosenPath.AutoSize = true;
+			this.FolderChosenPath.Location = new System.Drawing.Point(9, 16);
+			this.FolderChosenPath.Name = "FolderChosenPath";
+			this.FolderChosenPath.Size = new System.Drawing.Size(50, 13);
+			this.FolderChosenPath.TabIndex = 11;
+			this.FolderChosenPath.Text = "File path:";
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(9, 150);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(40, 13);
+			this.label1.TabIndex = 9;
+			this.label1.Text = "Status:";
+			// 
+			// ChoosenPathLabel
+			// 
+			this.ChoosenPathLabel.Location = new System.Drawing.Point(9, 40);
+			this.ChoosenPathLabel.Name = "ChoosenPathLabel";
+			this.ChoosenPathLabel.Size = new System.Drawing.Size(408, 13);
+			this.ChoosenPathLabel.TabIndex = 12;
+			this.ChoosenPathLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// StatusLabelText
+			// 
+			this.StatusLabelText.Location = new System.Drawing.Point(47, 150);
+			this.StatusLabelText.Name = "StatusLabelText";
+			this.StatusLabelText.Size = new System.Drawing.Size(160, 13);
+			this.StatusLabelText.TabIndex = 10;
+			// 
+			// ProcessFilesButton
+			// 
+			this.ProcessFilesButton.Location = new System.Drawing.Point(330, 179);
+			this.ProcessFilesButton.Name = "ProcessFilesButton";
+			this.ProcessFilesButton.Size = new System.Drawing.Size(105, 25);
+			this.ProcessFilesButton.TabIndex = 16;
+			this.ProcessFilesButton.Text = "Process files";
+			this.ProcessFilesButton.UseVisualStyleBackColor = true;
+			this.ProcessFilesButton.Click += new System.EventHandler(this.ProcessFilesButton_Click);
+			// 
+			// ChooseFirstFolderButton
+			// 
+			this.ChooseFirstFolderButton.Location = new System.Drawing.Point(7, 180);
+			this.ChooseFirstFolderButton.Name = "ChooseFirstFolderButton";
+			this.ChooseFirstFolderButton.Size = new System.Drawing.Size(105, 25);
+			this.ChooseFirstFolderButton.TabIndex = 15;
+			this.ChooseFirstFolderButton.Text = "Choose file";
+			this.ChooseFirstFolderButton.UseVisualStyleBackColor = true;
+			this.ChooseFirstFolderButton.Click += new System.EventHandler(this.ChooseFirstFolderButton_Click);
+			// 
+			// ChooseTermsFile
+			// 
+			this.ChooseTermsFile.Location = new System.Drawing.Point(118, 180);
+			this.ChooseTermsFile.Name = "ChooseTermsFile";
+			this.ChooseTermsFile.Size = new System.Drawing.Size(105, 25);
+			this.ChooseTermsFile.TabIndex = 18;
+			this.ChooseTermsFile.Text = "Choose terms file";
+			this.ChooseTermsFile.UseVisualStyleBackColor = true;
+			this.ChooseTermsFile.Click += new System.EventHandler(this.ChooseTermsFile_Click);
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(9, 80);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(79, 13);
+			this.label2.TabIndex = 13;
+			this.label2.Text = "Terms file path:";
+			// 
+			// TermsFilePathLabel
+			// 
+			this.TermsFilePathLabel.Location = new System.Drawing.Point(9, 104);
+			this.TermsFilePathLabel.Name = "TermsFilePathLabel";
+			this.TermsFilePathLabel.Size = new System.Drawing.Size(408, 13);
+			this.TermsFilePathLabel.TabIndex = 14;
+			this.TermsFilePathLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// MainGUI
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(442, 211);
+			this.Controls.Add(this.ChooseTermsFile);
+			this.Controls.Add(this.groupBox1);
+			this.Controls.Add(this.ProcessFilesButton);
+			this.Controls.Add(this.ChooseFirstFolderButton);
+			this.Name = "MainGUI";
+			this.ShowIcon = false;
+			this.Text = "Form1";
+			this.groupBox1.ResumeLayout(false);
+			this.groupBox1.PerformLayout();
+			this.ResumeLayout(false);
 
 		}
 
@@ -129,6 +162,9 @@
 		private System.Windows.Forms.Label StatusLabelText;
 		private System.Windows.Forms.Button ProcessFilesButton;
 		private System.Windows.Forms.Button ChooseFirstFolderButton;
+		private System.Windows.Forms.Button ChooseTermsFile;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.Label TermsFilePathLabel;
 	}
 }
 
