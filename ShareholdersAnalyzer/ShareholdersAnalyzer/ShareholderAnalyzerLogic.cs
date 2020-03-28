@@ -68,22 +68,18 @@ namespace ShareholdersAnalyzer
                     {
 						try
 						{
-							int rowNum = Convert.ToInt32(argValue);
-							var htmlDocument = WebHelper.GetPageData(name, URL);
-							bool? result = IsFF(htmlDocument, name, companyName);
-							if (result == true)
-							{
-								workSheet.Cells[rowNum, 6].Value = "FF";
-							}
-							if (result == false)
-							{
-								workSheet.Cells[rowNum, 6].Value = "NFF";
-							}
-							if (result == null)
-							{
-								workSheet.Cells[rowNum, 6].Value = "To be checked";
-							}
-						}
+                            int rowNum = Convert.ToInt32(row);
+                            var htmlDocument = WebHelper.GetPageData(URL);
+                            bool? result = IsNFF(htmlDocument, familyName, middleName);
+                            if (result == true)
+                            {
+                                workSheet.Cells[rowNum, 7].Value = "NFF";
+                            }
+                            if (result == false)
+                            {
+                                workSheet.Cells[rowNum, 7].Value = "FF";
+                            }
+                        }
 						catch (Exception ex)
 						{
 							Console.WriteLine(ex);
