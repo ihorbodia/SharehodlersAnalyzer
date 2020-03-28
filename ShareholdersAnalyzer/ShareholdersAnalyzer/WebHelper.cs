@@ -8,12 +8,8 @@ namespace ShareholdersAnalyzer
 {
 	public static class WebHelper
 	{
-		public static HtmlDocument GetPageData(string name, string URL)
+		public static HtmlDocument GetPageData(string URL)
 		{
-			if (string.IsNullOrEmpty(name))
-			{
-				return null;
-			}
 			string html = string.Empty;
 			if (!URL.Contains("https://www."))
 			{

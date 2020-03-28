@@ -48,7 +48,6 @@ namespace ShareholdersAnalyzerGUI
             StatusLabelText.Text = "Processing";
             ProcessFilesButton.BeginInvoke((MethodInvoker)delegate () { ProcessFilesButton.Enabled = false; });
             ChooseFirstFolderButton.BeginInvoke((MethodInvoker)delegate () { ChooseFirstFolderButton.Enabled = false; });
-            ChooseTermsFile.BeginInvoke((MethodInvoker)delegate () { ChooseTermsFile.Enabled = false; });
             try
             {
                 new Task(() =>
@@ -59,7 +58,6 @@ namespace ShareholdersAnalyzerGUI
                     StatusLabelText.BeginInvoke((MethodInvoker)delegate () { StatusLabelText.Text = "Finish"; });
                     ProcessFilesButton.BeginInvoke((MethodInvoker)delegate () { ProcessFilesButton.Enabled = true; });
                     ChooseFirstFolderButton.BeginInvoke((MethodInvoker)delegate () { ChooseFirstFolderButton.Enabled = true; });
-                    ChooseTermsFile.BeginInvoke((MethodInvoker)delegate () { ChooseTermsFile.Enabled = true; });
                     Console.WriteLine("Finish");
                 }).Start();
             }
@@ -93,18 +91,9 @@ namespace ShareholdersAnalyzerGUI
             }
         }
 
-        private void ChooseTermsFile_Click(object sender, EventArgs e)
-        {
-            choosenTermsFilePath = FilesHelper.SelectFile();
-            if (!string.IsNullOrEmpty(choosenTermsFilePath.Trim()))
-            {
-                TermsFilePathLabel.Text = choosenTermsFilePath;
-            }
-        }
-
         private bool CanRunProcess()
         {
-            return !string.IsNullOrEmpty(ChoosenPathLabel.Text) && !string.IsNullOrEmpty(TermsFilePathLabel.Text);
+            return !string.IsNullOrEmpty(ChoosenPathLabel.Text);
         }
     }
 }
