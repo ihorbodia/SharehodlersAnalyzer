@@ -56,11 +56,11 @@ namespace ShareholdersAnalyzer
                     bool? result = IsNFF(htmlDocument, familyName, middleName);
                     if (result == true)
                     {
-                        workSheet.Cells[rowNum, 7].Value = "NFF";
+                        workSheet.Cells[rowNum, 6].Value = "NFF";
                     }
                     if (result == false)
                     {
-                        workSheet.Cells[rowNum, 7].Value = "FF";
+                        workSheet.Cells[rowNum, 6].Value = "FF";
                     }
                     Debug.WriteLine(rowNum);
 #else
@@ -118,11 +118,15 @@ namespace ShareholdersAnalyzer
                 Console.WriteLine(ex);
             }
 
-            var result = managersTable.FirstOrDefault(x => 
-                (familyName.ToUpper() == x.InnerText.ToUpper()) || 
-                (middleName.ToUpper() == x.InnerText.ToUpper()));
+            if (managersTable == null)
+            {
+                return false;
+            }
 
-            return result != null;
+            var result = managersTable.Any(x => 
+                (x.InnerText.ToUpper().Contains(familyName.ToUpper())) || x.InnerText.ToUpper().Contains(middleName.ToUpper()));
+
+            return result;
         }
     }
 }
