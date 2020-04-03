@@ -111,6 +111,8 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.ProcessFilesButton);
             this.Controls.Add(this.ChooseFirstFolderButton);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "MainGUI";
             this.ShowIcon = false;
             this.Text = "Form1";

@@ -66,9 +66,9 @@ namespace ShareholdersAnalyzerGUI
                 StatusLabelText.Text = "Something wrong";
             }
         }
-        private void RunProgram()
+        private async void RunProgram()
         {
-            ms.ProcessFile();
+            await ms.ProcessFileAsync();
             SaveFile();
         }
         private void SaveFile()

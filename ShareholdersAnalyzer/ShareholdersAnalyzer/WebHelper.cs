@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,11 @@ namespace ShareholdersAnalyzer
 {
 	public static class WebHelper
 	{
-		public static HtmlDocument GetPageData(string URL)
+        public static Task ForEachAsync<T>(this IEnumerable<T> sequence, Func<T, Task> action)
+        {
+            return Task.WhenAll(sequence.Select(action));
+        }
+        public async static Task<HtmlDocument> GetPageData(string URL)
 		{
 			string html = string.Empty;
 			if (!URL.Contains("https://www."))
@@ -28,7 +33,7 @@ namespace ShareholdersAnalyzer
 			HtmlDocument htmlDoc = null;
 			try
 			{
-				htmlDoc = web.Load(html);
+                htmlDoc = await web.LoadFromWebAsync(html, iso);
 			}
 			catch (Exception ex)
 			{

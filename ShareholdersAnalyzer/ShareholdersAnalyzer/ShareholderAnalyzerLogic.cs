@@ -6,6 +6,9 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -34,66 +37,49 @@ namespace ShareholdersAnalyzer
             }
         }
 
-        public void ProcessFile()
+        public async Task ProcessFileAsync()
         {
             FileInfo excelFi = new FileInfo(excelFilePath);
             if (excelFi.Exists)
             {
                 p = new ExcelPackage(excelFi);
                 ExcelWorksheet workSheet = p.Workbook.Worksheets[1];
-                DataTable dt = new DataTable();
                 var start = workSheet.Dimension.Start.Row + 1;
                 var end = workSheet.Dimension.End.Row;
-                for (int row = start; row <= end; row++)
+
+                await Enumerable.Range(start, end).ForEachAsync(async item =>
                 {
-                    string familyName = FilesHelper.GetFamilyName(workSheet.Cells[row, 3].Text);
-                    string middleName = FilesHelper.GetMiddleName(workSheet.Cells[row, 3].Text);
-                    string URL = workSheet.Cells[row, 4].Text;
-                    object arg = row;
-#if DEBUG
-                    int rowNum = Convert.ToInt32(row);
-                    var htmlDocument = WebHelper.GetPageData(URL);
-                    bool? result = IsNFF(htmlDocument, familyName, middleName);
-                    if (result == true)
+                    string familyName = FilesHelper.GetFamilyName(workSheet.Cells[item, 3].Text);
+                    string middleName = FilesHelper.GetMiddleName(workSheet.Cells[item, 3].Text);
+                    string URL = workSheet.Cells[item, 4].Text;
+                    if (string.IsNullOrEmpty(URL))
                     {
-                        workSheet.Cells[rowNum, 6].Value = "NFF";
+                        return;
                     }
-                    if (result == false)
-                    {
-                        workSheet.Cells[rowNum, 6].Value = "FF";
-                    }
-                    Debug.WriteLine(rowNum);
-#else
-                    tasks.Add(Task.Factory.StartNew(new Action<object>((argValue) =>
-                    {
-						try
-						{
-                            int rowNum = Convert.ToInt32(row);
-                            var htmlDocument = WebHelper.GetPageData(URL);
-                            bool? result = IsNFF(htmlDocument, familyName, middleName);
-                            if (result == true)
-                            {
-                                workSheet.Cells[rowNum, 7].Value = "NFF";
-                            }
-                            if (result == false)
-                            {
-                                workSheet.Cells[rowNum, 7].Value = "FF";
-                            }
-                        }
-						catch (Exception ex)
-						{
-							Console.WriteLine(ex);
-						}
-                       
-                    }), arg));
-#endif
-                }
+                    await StartProcess(workSheet, item, familyName, middleName, URL);
+                });
+                Console.WriteLine("THERE");
             }
+        }
+
+        private async Task StartProcess(ExcelWorksheet workSheet, object row, string familyName, string middleName, string URL)
+        {
+            int rowNum = Convert.ToInt32(row);
+            var htmlDocument = GetPageData(URL);
+            bool? result = IsNFF(htmlDocument, familyName, middleName);
+            if (result == true)
+            {
+                workSheet.Cells[rowNum, 6].Value = "NFF";
+            }
+            if (result == false)
+            {
+                workSheet.Cells[rowNum, 6].Value = "FF";
+            }
+            Debug.WriteLine(rowNum);
         }
 
         public void SaveFile()
         {
-            Task.WaitAll(tasks.ToArray());
             p.Save();
             p.Dispose();
         }
@@ -101,6 +87,10 @@ namespace ShareholdersAnalyzer
         private bool? IsNFF(HtmlDocument htmlDocument, string familyName, string middleName)
         {
             if (string.IsNullOrEmpty(familyName) && string.IsNullOrEmpty(middleName))
+            {
+                return null;
+            }
+            if (htmlDocument == null)
             {
                 return null;
             }
@@ -123,10 +113,50 @@ namespace ShareholdersAnalyzer
                 return false;
             }
 
-            var result = managersTable.Any(x => 
-                (x.InnerText.ToUpper().Contains(familyName.ToUpper())) || x.InnerText.ToUpper().Contains(middleName.ToUpper()));
+            bool isTableContainsName(string name)
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    return false;
+                }
+                return managersTable.Any(x => x.InnerText.ToUpper().Contains(name.ToUpper()));
+            }
 
-            return result;
+            return isTableContainsName(familyName) || isTableContainsName(middleName);
+        }
+
+        public HtmlDocument GetPageData(string URL)
+        {
+            string html = string.Empty;
+            if (!URL.Contains("https://www."))
+            {
+                html = "https://www." + URL;
+            }
+            else
+            {
+                html = URL;
+            }
+            Encoding iso = Encoding.GetEncoding("iso-8859-1");
+            HtmlWeb web = new HtmlWeb()
+            {
+                AutoDetectEncoding = false,
+                OverrideEncoding = iso,
+            };
+            
+            var htmlDoc = new HtmlDocument();
+            try
+            {
+                using (var htppClient = new HttpClient())
+                {
+                    var result = htppClient.GetStringAsync(html);
+                    htmlDoc.LoadHtml(result.Result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return htmlDoc;
         }
     }
 }
