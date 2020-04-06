@@ -58,7 +58,6 @@ namespace ShareholdersAnalyzer
                     }
                     await StartProcess(workSheet, item, familyName, middleName, URL);
                 });
-                Console.WriteLine("THERE");
             }
         }
 
@@ -113,16 +112,24 @@ namespace ShareholdersAnalyzer
                 return false;
             }
 
-            bool isTableContainsName(string name)
+            bool isTableContainsFamilyName(string familyNameFromXlsx)
             {
-                if (string.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(familyNameFromXlsx))
                 {
                     return false;
                 }
-                return managersTable.Any(x => x.InnerText.ToUpper().Contains(name.ToUpper()));
+                return managersTable.Any(x => FilesHelper.GetFamilyName(x.InnerText).ToUpper().Equals(familyNameFromXlsx.ToUpper()));
+            }
+            bool isTableContainsMiddleName(string middleNameFromXlsx)
+            {
+                if (string.IsNullOrEmpty(middleNameFromXlsx))
+                {
+                    return false;
+                }
+                return managersTable.Any(x => FilesHelper.GetMiddleName(x.InnerText).ToUpper().Equals(middleNameFromXlsx.ToUpper()));
             }
 
-            return isTableContainsName(familyName) || isTableContainsName(middleName);
+           return isTableContainsFamilyName(familyName) || isTableContainsMiddleName(middleName);
         }
 
         public HtmlDocument GetPageData(string URL)
@@ -136,13 +143,6 @@ namespace ShareholdersAnalyzer
             {
                 html = URL;
             }
-            Encoding iso = Encoding.GetEncoding("iso-8859-1");
-            HtmlWeb web = new HtmlWeb()
-            {
-                AutoDetectEncoding = false,
-                OverrideEncoding = iso,
-            };
-            
             var htmlDoc = new HtmlDocument();
             try
             {
