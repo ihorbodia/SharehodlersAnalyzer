@@ -63,6 +63,7 @@ namespace ShareholdersAnalyzer
                     .Replace("MD", newChar)
                     .Replace("family", newChar)
                     .Replace("CFA", newChar)
+                    .Replace("Dr", newChar)
                     .Replace(",", newChar)
                     .Replace(".", newChar);
 
@@ -70,7 +71,7 @@ namespace ShareholdersAnalyzer
             data = Regex.Replace(data, @"(\s)([IV]{1,})(\b|\s)", string.Empty);
             var res = data.Trim().Split(' ').ToList().Where(x => x.Length > 1);
 
-            if (res.Any())
+            if (res.Count() == 2 || res.Count() == 3)
             {
                 return res.Last();
             }
@@ -94,18 +95,19 @@ namespace ShareholdersAnalyzer
                     .Replace("MD", newChar)
                     .Replace("family", newChar)
                     .Replace("CFA", newChar)
+                    .Replace("Dr", newChar)
                     .Replace(",", newChar)
                     .Replace(".", newChar);
             data = Regex.Replace(data, @"\s[I]{1,}\s", string.Empty);
             data = Regex.Replace(data, @"(\s)([IV]{1,})(\b|\s)", string.Empty);
             var res = data.Trim().Split(' ').ToList().Where(x => x.Length > 1);
 
-            if (res.Count() > 2)
+            string name = string.Empty;
+            if (res.Count() == 3)
             {
-                return res.ElementAt(res.Count() - 2);
+                name = res.ElementAt(res.Count() - 1);
             }
-
-            return string.Empty;
+            return name;
         }
     }
 }
